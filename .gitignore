@@ -2,3 +2,5 @@
 .idea
 .run
 __pycache__
+data/*
+

@@ -1,0 +1,12 @@
+[submodule "include/cluster2conquer"]
+	path = include/cluster2conquer
+	url = https://github.com/YashSharma/C2C.git
+[submodule "include/attention_based"]
+	path = include/attention_based
+	url = https://github.com/AMLab-Amsterdam/AttentionDeepMIL.git
+[submodule "include/clam"]
+	path = include/clam
+	url = https://github.com/mahmoodlab/CLAM.git
+[submodule "include/mil"]
+	path = include/mil
+	url = https://github.com/rosasalberto/mil.git
