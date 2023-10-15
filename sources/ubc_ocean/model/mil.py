@@ -121,17 +121,18 @@ class GatedAttention(nn.Module):
 
         self.attention_V = nn.Sequential(
             nn.Linear(self.L, self.D),
-            nn.Tanh()
+            # nn.Tanh()
         )
 
         self.attention_U = nn.Sequential(
             nn.Linear(self.L, self.D),
-            nn.Sigmoid()
+            # nn.Sigmoid()
         )
 
         self.attention_weights = nn.Linear(self.D, self.K)
 
         self.classifier = nn.Sequential(
+            nn.Flatten(start_dim=0),
             nn.Linear(self.L * self.K, 1),
             # nn.Sigmoid()
         )
@@ -142,7 +143,7 @@ class GatedAttention(nn.Module):
         A = self.attention_weights(A_V * A_U) # element wise multiplication # NxK
         A = torch.transpose(A, 1, 0)  # KxN
         A = F.softmax(A, dim=1)  # softmax over N
-
+        # print(A)
         M = torch.mm(A, H)  # KxL
 
         return self.classifier(M)
@@ -154,9 +155,11 @@ class MilAttentionMulticlassModel(nn.Module):
         self.batch_size = batch_size
         self.num_classes = num_classes
         self.backbone = backbone
+        for param in backbone.parameters():
+            param.requires_grad = False
         self.L = backbone.num_features
         self.D = 128
-        self.K = 1
+        self.K = 5
         self.attentions = nn.ModuleList()
         for i in range(num_classes):
             a = GatedAttention(self.L, self.D, self.K)
@@ -174,6 +177,29 @@ class MilAttentionMulticlassModel(nn.Module):
         result = F.softmax(result, dim=0).squeeze()
         return result
 
+
+class MilFeatureModel(nn.Module):
+    def __init__(self, num_features, num_classes=5):
+        super().__init__()
+        self.num_classes = num_classes
+        self.L = num_features
+        self.D = 128
+        self.K = 1
+        self.attentions = nn.ModuleList()
+        for i in range(num_classes):
+            a = GatedAttention(self.L, self.D, self.K)
+            self.attentions.append(a)
+        pass
+
+    def forward(self, H):
+        outputs = []
+        for i in range(self.num_classes):
+            outputs.append(self.attentions[i](H))
+            pass  # [N, K]
+        # result = self.attention(result)
+        result = torch.stack(outputs)
+        result = F.softmax(result, dim=0).squeeze()
+        return result
 
 # def forward(self, x):
 #     ds = TensorDataset(x)

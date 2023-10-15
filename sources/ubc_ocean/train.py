@@ -73,6 +73,12 @@ class Trainer:
             self.optimizer.step()
             result = self.process_train_results(results)
             pbar.set_postfix(result)
+            # for name, param in self.model.named_parameters():
+            #     # if param.requires_grad:
+            #     print(name, param.requires_grad, param.data)
+            # pass
+        # param = self.model.backbone.conv1.weight
+        # print(param.name, param.requires_grad, param.data[0][0][0][0])
         result = self.process_train_results(results)
 
     def train(self):

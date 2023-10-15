@@ -11,6 +11,8 @@ import hydra
 import random
 import torch
 from tqdm import tqdm
+import timm
+
 
 class UbcTileDataset(Dataset):
     def __init__(self, image_folder: str, annotation_file: str,
@@ -66,10 +68,26 @@ class UbcTileThumbnailDataset(UbcTileDataset):
         return os.path.join(self.image_folder, str(image_id) + '_thumbnail')
 
 
+class OnlineFeatureDataset(UbcTileThumbnailDataset):
+
+    def __init__(self, image_folder: str, annotation_file: str, mode='train',
+                 transforms=None, subsample=None):
+        super().__init__(image_folder, annotation_file, mode, transforms,
+                         subsample)
+        self.device = torch.device('cuda')
+        self.backbone = timm.create_model('resnet', pretrained=True,
+                                          num_classes=0)
+        self.backbone.to(self.device)
+
+    def __getitem__(self, idx):
+        item = super().__getitem__(idx)
+        pass
+
+
 def main():
     df_filename = 'data/original/annotations/train.csv'
-    image_folder = 'data/tiles/thumbnails/size_224_overlap_10'
-    dataset = UbcTileDataset(image_folder, df_filename)
+    image_folder = 'data/tiles/thumbnails/size_256_overlap_10_threshold_50'
+    dataset = OnlineFeatureDataset(image_folder, df_filename)
     item = dataset[0]
     # df = pd.read_csv(df_filename)
     # print(df.head())
@@ -91,9 +109,7 @@ def main():
 
 
 if __name__ == '__main__':
-    # print(os.getcwd())
-    # print(os.listdir(os.getcwd()))
-    with open('configs/train/base.yaml') as f:
+    with open('configs/train/features.yaml') as f:
         config = yaml.load(f, yaml.Loader)
         data = hydra.utils.instantiate(config['data'])
         dataset = data['loaders']['train'].dataset

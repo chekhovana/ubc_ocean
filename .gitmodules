@@ -10,3 +10,6 @@
 [submodule "include/mil"]
 	path = include/mil
 	url = https://github.com/rosasalberto/mil.git
+[submodule "include/mil_pytorch"]
+	path = include/mil_pytorch
+	url = https://github.com/jakubmonhart/mil_pytorch.git

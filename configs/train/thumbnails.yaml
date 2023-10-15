@@ -19,7 +19,7 @@ model:
   _target_: ubc_ocean.model.mil.MilAttentionMulticlassModel
   backbone:
     _target_: timm.create_model
-    model_name: resnet34
+    model_name: resnet101
     num_classes: 0
     pretrained: true
   batch_size: 128
